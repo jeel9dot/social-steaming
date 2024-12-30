@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+  nats-server:
+    image: nats:latest
+    ports:
+      - "4222:4222" # Client port
+      - "8222:8222" # HTTP monitoring port
+    environment:
+      - NATS_LOG_LEVEL=debug
+      - NATS_MAX_PAYLOAD=1048576
