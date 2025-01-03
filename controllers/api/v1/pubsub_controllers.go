@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"strings"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
 	"github.com/jeel9dot/trading-pub-sub/nats"
@@ -12,13 +14,6 @@ type PublishRequest struct {
 	Subject string `json:"subject"`
 	Message string `json:"message"`
 }
-
-// WebSocket Upgrader
-// var upgrader = websocket.Upgrader{
-// 	CheckOrigin: func(r *http.Request) bool {
-// 		return true
-// 	},
-// }
 
 type PubSubController struct {
 	logger *zap.Logger
@@ -48,55 +43,75 @@ func (ctrl *PubSubController) Publish(c *fiber.Ctx) error {
 	})
 }
 
-// Subscribe to a subject
-func (ctrl *PubSubController) Subscribe() fiber.Handler {
-	return websocket.New(func(conn *websocket.Conn) {
-		subject := conn.Params("subject")
-		ctrl.logger.Info("WebSocket client connected", zap.String("subject", subject))
-		defer func() {
-			// Close WebSocket connection on exit
-			err := conn.Close()
-			if err != nil {
-				ctrl.logger.Error("Error while closing WebSocket connection", zap.Error(err))
-			}
-			ctrl.logger.Info("WebSocket client disconnected", zap.String("subject", subject))
-		}()
-
-		// Create a channel to handle WebSocket disconnection
-		closeChan := make(chan struct{})
-
-		// Subscribe to the subject
+func (ctrl *PubSubController) subscribeToSubjects(subjects []string, conn *websocket.Conn, closeChan chan struct{}) error {
+	for _, subject := range subjects {
 		subscription, err := ctrl.nc.Subscribe(subject, func(msg *nc.Msg) {
 			select {
 			case <-closeChan:
 				// Stop sending messages after disconnect
 				return
 			default:
-
 				// Send message to WebSocket client
-				ctrl.logger.Info("Received message", zap.String("subject", subject), zap.String("message", string(msg.Data)))
-				err := conn.WriteMessage(websocket.TextMessage, msg.Data)
-				if err != nil {
-					ctrl.logger.Error("Error while sending message to WebSocket client", zap.Error(err))
+				ctrl.logger.Debug("Sending message to WebSocket client", zap.String("subject", subject), zap.String("message", string(msg.Data)))
+				if err := conn.WriteMessage(websocket.TextMessage, msg.Data); err != nil {
+					ctrl.logger.Warn("Error while sending message to WebSocket client", zap.Error(err), zap.String("subject", subject))
 					// Trigger disconnection cleanup
 					close(closeChan)
 				}
 			}
 		})
 		if err != nil {
-			ctrl.logger.Error("Error while subscribing to subject", zap.Error(err))
+			ctrl.logger.Warn("Subscription failed", zap.String("subject", subject), zap.Error(err))
+			return err
+		}
+
+		// Ensure unsubscription on exit
+		defer func(sub string) {
+			if err := subscription.Unsubscribe(); err != nil {
+				ctrl.logger.Warn("Error during unsubscription", zap.String("subject", sub), zap.Error(err))
+			} else {
+				ctrl.logger.Debug("Successfully unsubscribed", zap.String("subject", sub))
+			}
+		}(subject)
+	}
+
+	return nil
+}
+
+func (ctrl *PubSubController) Subscribe() fiber.Handler {
+	return websocket.New(func(conn *websocket.Conn) {
+		subjects := conn.Query("subjects")
+		if subjects == "" {
+			ctrl.logger.Error("Subscription attempt without subjects")
+			_ = conn.Close()
 			return
 		}
-		defer subscription.Unsubscribe() // Unsubscribe when client disconnects
+
+		// Parse the subjects into a slice
+		subjectList := strings.Split(subjects, ",")
+		ctrl.logger.Info("WebSocket client connected", zap.Strings("subjects", subjectList))
+
+		defer func() {
+			// Close WebSocket connection on exit
+			if err := conn.Close(); err != nil {
+				ctrl.logger.Warn("Error while closing WebSocket connection", zap.Error(err))
+			} else {
+				ctrl.logger.Info("WebSocket connection closed", zap.Strings("subjects", subjectList))
+			}
+		}()
+
+		// Create a channel to handle WebSocket disconnection
+		closeChan := make(chan struct{})
+
+		// Subscribe to the subjects
+		if err := ctrl.subscribeToSubjects(subjectList, conn, closeChan); err != nil {
+			ctrl.logger.Error("Subscription process failed", zap.Error(err))
+			return
+		}
 
 		// Keep the connection open until the client disconnects
-		for {
-			_, _, err := conn.ReadMessage()
-			if err != nil {
-				// Trigger cleanup on WebSocket disconnection
-				close(closeChan)
-				break
-			}
-		}
+		ctrl.logger.Debug("Waiting for WebSocket client to disconnect", zap.Strings("subjects", subjectList))
+		<-closeChan
+		ctrl.logger.Info("WebSocket client disconnected", zap.Strings("subjects", subjectList))
 	})
 }

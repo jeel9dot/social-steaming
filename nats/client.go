@@ -9,7 +9,7 @@ type NatsClient struct {
 }
 
 func NewNatsClient(url string) (*NatsClient, error) {
-	conn, err := nc.Connect(nc.DefaultURL)
+	conn, err := nc.Connect(url, nc.Name("social-trading-pub-sub"))
 	if err != nil {
 		return nil, err
 	}

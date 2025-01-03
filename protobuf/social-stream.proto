@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+option go_package = "github.com/jeel9dot/social-stream";
+
+service SocialSteamService {
+   rpc PublishTrades(PublisherRequest) returns (PublisherResponce);
+   rpc SubcribeTrades(SubcribeRequest) returns (stream SubcribeResponce);
+}
+
+message PublisherResponce {
+    bool success = 1;
+    string message = 2;
+}
+
+message PublisherRequest {
+    string subject = 1;
+    string msg = 2;
+}
+
+message SubcribeRequest {
+    repeated string subjects = 1;
+}
+
+message SubcribeResponce {
+    string msg = 1;
+    string subject = 2;
+}
