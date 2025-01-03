@@ -3,8 +3,8 @@ package handlers
 import (
 	"context"
 
-	"github.com/jeel9dot/trading-pub-sub/constants"
-	social_stream "github.com/jeel9dot/trading-pub-sub/protobuf/genproto/social-stream"
+	"github.com/jeel9dot/social-steam/constants"
+	social_stream "github.com/jeel9dot/social-steam/protobuf/genproto/social-stream"
 	"go.uber.org/zap"
 )
 

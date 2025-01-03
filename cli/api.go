@@ -6,9 +6,9 @@ import (
 	"syscall"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/jeel9dot/trading-pub-sub/config"
-	"github.com/jeel9dot/trading-pub-sub/nats"
-	"github.com/jeel9dot/trading-pub-sub/routes"
+	"github.com/jeel9dot/social-steam/config"
+	"github.com/jeel9dot/social-steam/nats"
+	"github.com/jeel9dot/social-steam/routes"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 )

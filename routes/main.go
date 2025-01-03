@@ -4,9 +4,9 @@ import (
 	"sync"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/jeel9dot/trading-pub-sub/config"
-	controller "github.com/jeel9dot/trading-pub-sub/controllers/api/v1"
-	"github.com/jeel9dot/trading-pub-sub/nats"
+	"github.com/jeel9dot/social-steam/config"
+	controller "github.com/jeel9dot/social-steam/controllers/api/v1"
+	"github.com/jeel9dot/social-steam/nats"
 
 	"go.uber.org/zap"
 )

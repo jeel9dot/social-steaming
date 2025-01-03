@@ -1,9 +1,9 @@
 package cli
 
 import (
-	"github.com/jeel9dot/trading-pub-sub/config"
-	"github.com/jeel9dot/trading-pub-sub/nats"
-	grpc_server "github.com/jeel9dot/trading-pub-sub/pkg"
+	"github.com/jeel9dot/social-steam/config"
+	"github.com/jeel9dot/social-steam/nats"
+	grpc_server "github.com/jeel9dot/social-steam/pkg"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 )

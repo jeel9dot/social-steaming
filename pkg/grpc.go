@@ -3,8 +3,8 @@ package grpc_server
 import (
 	"net"
 
-	"github.com/jeel9dot/trading-pub-sub/handlers"
-	"github.com/jeel9dot/trading-pub-sub/nats"
+	"github.com/jeel9dot/social-steam/handlers"
+	"github.com/jeel9dot/social-steam/nats"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )

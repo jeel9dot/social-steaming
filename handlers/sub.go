@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"github.com/jeel9dot/trading-pub-sub/constants"
-	social_stream "github.com/jeel9dot/trading-pub-sub/protobuf/genproto/social-stream"
+	"github.com/jeel9dot/social-steam/constants"
+	social_stream "github.com/jeel9dot/social-steam/protobuf/genproto/social-stream"
 	"github.com/nats-io/nats.go"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"

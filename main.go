@@ -15,9 +15,9 @@
 package main
 
 import (
-	"github.com/jeel9dot/trading-pub-sub/cli"
-	"github.com/jeel9dot/trading-pub-sub/config"
-	"github.com/jeel9dot/trading-pub-sub/logger"
+	"github.com/jeel9dot/social-steam/cli"
+	"github.com/jeel9dot/social-steam/config"
+	"github.com/jeel9dot/social-steam/logger"
 	"go.uber.org/zap"
 )
 

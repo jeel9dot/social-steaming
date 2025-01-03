@@ -5,7 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
-	"github.com/jeel9dot/trading-pub-sub/nats"
+	"github.com/jeel9dot/social-steam/nats"
 	nc "github.com/nats-io/nats.go"
 	"go.uber.org/zap"
 )
